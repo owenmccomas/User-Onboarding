@@ -1,60 +1,83 @@
-import Form from './components/Form';
 import './App.css';
-import axios from 'axios'
-import React, { useState } from 'react';
-
-import schema from './validation/formSchema';
+import Form from './components/Form';
+import React, { useState } from 'react'
 import * as yup from 'yup'
 
-
-const initialFormValues = {
-  username: '',
-  password: '',
-  email: '',
-  tos: false
-}
-
-const initialFormErrors = {
-  username: '',
-  password: '',
-  email: '',
-  tos: ''
-}
-
 function App() {
-  const [formValues, setFormValues] = useState(initialFormValues)
-  const [formErrors, setFormErrors] = useState(initialFormErrors)
+
+  // STATE SLICES ARE DEFINED //
   const [users, setUsers] = useState([])
+  const [formData, setFormData] = useState({
+    fname: '',
+    lname: '',
+    email: '',
+    password: '',
+    termsOfService: false,
+  })
+  const [errors, setErrors] = useState({
+    fname: '',
+    lname: '',
+    email: '',
+    password: '',
+    termsOfService: '',
+  })
 
-  
-  const handleSubmit = () => {
-    axios.post('https://reqres.in/api/users', formValues)
-          .then(res => {
-            setUsers([ res.data, ...users ])
-          })
-          .catch(err => console.error(err))
-          .finally(() => setFormValues(initialFormValues))
-  }
-  
-  const validate = (name, value) => {
-    yup.reach(schema, name)
-    .validate(value)
-    .then(() => setFormErrors({ ...formErrors, [name]: ''}))
-    .catch(err => setFormErrors({ ...formErrors, [name]: err.errors[0] }))
-  }
+  // CHANGE EVENT IS HANDLED //
 
-  const handleChange = (name, value) => {
+  const handleChange = (event) => {
+    const {name, value} = event.target
     validate(name, value)
-    setFormValues({...formValues, [name]: value})
-  }
+    setFormData({...formData, [name]: value})
+    }
+
+    // FORM IS VALIDATED VIA YUP SCHEMA //
+    const validate = (name, value) => {
+      yup.reach(formSchema, name)
+      .validate(value)
+      .then(valid => setErrors({...errors, [name]: ''}))
+      .catch(err => {
+        setErrors({...errors, [name]: err.errors[0]})
+      })
+    }
+  
+
+  
+
+
+  
+  // YUP SCHEMA IS SHAPED //
+
+  const formSchema = yup.object().shape({
+    fname: yup
+    .string()
+    .required('Please enter your First Name'),
+    lname: yup
+    .string()
+    .required('Please enter your Last Name'),
+    email: yup
+    .string()
+    .email('Please enter a valid Email Address')
+    .required('Email Address Required'),
+    password: yup
+    .string()
+    .required('Please enter a password')
+    .min(6, 'Password must exceed 5 Characters in length'),
+    termsOfService: yup
+      .boolean()
+      .oneOf([true], 'You must accept Terms and Conditions to Continue')
+
+    })
+
+    
+
+
+
+    // APP COMPONENT IS RETURNED WITH FORM //
 
   return (
     <div className="App">
-      <Form values={formValues} change={handleChange} errors={formErrors} submit={handleSubmit}/>
-      <div>
-        <p>{users.createdAt}</p>
-        <p>{users.email}</p>
-      </div>
+      <div className='errors'><div>{errors.fname}</div><div>{errors.lname}</div><div>{errors.email}</div><div>{errors.password}</div><div>{errors.termsOfService}</div></div>
+      <Form setUsers={setUsers} users={users} formData={formData} change={handleChange} />
     </div>
   );
 }

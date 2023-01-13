@@ -1,65 +1,69 @@
-import React from 'react';
+import React from 'react'
+import axios from 'axios'
 
-const Form = (props) => {
-    const { change, submit, errors } = props
-    const { username, email, password, tos } = props.values
 
-    const onChange = (e) => {
-        const { name, value, checked, type } = e.target;
-        const newVal = type === 'checkbox' ? checked : value;
-        change(name, newVal)
-    }
 
-    const onSubmit = (e) => {
-        e.preventDefault()
-        submit();
-    }
+export default function Form(props) {
+const {formData, change, users, setUsers} = props
 
-    return (
-        <div>
-        <h1>My form</h1>
-        <p>{errors.username}</p>
-        <p>{errors.password}</p>
-        <p>{errors.email}</p>
-        <p>{errors.tos}</p>
+  const submit = (event) => {
+    event.preventDefault()
+    axios.post('https://regres.in/api/users', formData)
+    .then(res => {
+      setUsers([...users, res.formData ])
+    })
+    .catch(err => console.error(err))
+} 
 
-        <form>
-            <label>Name:
-                <input 
-                    type='text'
-                    name='username'
-                    value={username}
-                    onChange={onChange}
-                />
-            </label>
-            <label>Email:
-                <input 
-                  type='email'
-                  name='email'
-                  value={email}
-                  onChange={onChange}
-                />
-            </label>
-            <label>Password
-                <input 
-                    type='password'
-                    name='password'
-                    value={password}
-                    onChange={onChange}
-                />
-            </label>
-            <label>Terms of Service:
-                <input 
-                    type='checkbox'
-                    name='tos'
-                    checked={tos}
-                    onChange={onChange}
-                />
-            </label>
-            <input  type='submit' value='Create a Friend!' />
-        </form>
-        </div>
-    )
+  return (
+    <div>
+      <form >
+        <label> First Name: 
+            <input
+            type='text' 
+            name='fname'
+            value={formData.fname}
+            onChange={change}
+            placeholder='First Name'
+            />
+        </label>
+        <label> Last Name: 
+            <input
+            type='text' 
+            name='lname'
+            value={formData.lname}
+            onChange={change}
+            placeholder='Last Name'
+            />
+        </label>
+        <label> Email: 
+            <input
+            type='email' 
+            name='email'
+            value={formData.email}
+            onChange={change}
+            placeholder='email@email.com'
+            />
+        </label>
+        <label> Password: 
+            <input
+            type='text' 
+            name='password'
+            value={formData.password}
+            onChange={change}
+            placeholder='username'
+            />
+        </label>
+        <label className='termsOf'> Terms of Service: 
+            <input
+            type='checkbox' 
+            name='terms'
+            value={formData.termsOfService}
+            onChange={change}
+            />
+        </label>
+        <input onSubmit={submit} className='submitter' name='submit' type='submit' />
+      </form>
+    </div>
+  )
 }
-
-export default Form
