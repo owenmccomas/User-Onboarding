@@ -51,7 +51,7 @@ const {formData, change, users, setUsers} = props
             name='password'
             value={formData.password}
             onChange={change}
-            placeholder='username'
+            placeholder='password'
             />
         </label>
         <label className='termsOf'> Terms of Service: 
